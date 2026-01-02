@@ -68,15 +68,29 @@ export async function POST(req: NextRequest) {
         }
 
         // 2. Generate Patch with AI
-        const completion = await groq.chat.completions.create({
-            model: "llama-3.3-70b-versatile",
-            messages: [
-                { role: "system", content: PROMPTS.PATCH_GENERATOR },
-                { role: "user", content: `Vulnerability: ${issueDescription}\n\nCode:\n${codeToFix}` }
-            ],
-        });
-
-        const fixedCode = completion.choices[0].message.content;
+        let fixedCode;
+        try {
+            console.log("Attempting patch with llama-3.3-70b-versatile...");
+            const completion = await groq.chat.completions.create({
+                model: "llama-3.3-70b-versatile",
+                messages: [
+                    { role: "system", content: PROMPTS.PATCH_GENERATOR },
+                    { role: "user", content: `Vulnerability: ${issueDescription}\n\nCode:\n${codeToFix}` }
+                ],
+            });
+            fixedCode = completion.choices[0].message.content;
+        } catch (error: any) {
+            console.warn("Primary model failed, attempting fallback to llama-3.1-8b-instant...", error.error?.code || error.message);
+            // Fallback to lighter model
+            const completion = await groq.chat.completions.create({
+                model: "llama-3.1-8b-instant",
+                messages: [
+                    { role: "system", content: PROMPTS.PATCH_GENERATOR },
+                    { role: "user", content: `Vulnerability: ${issueDescription}\n\nCode:\n${codeToFix}` }
+                ],
+            });
+            fixedCode = completion.choices[0].message.content;
+        }
 
         if (!fixedCode || fixedCode.includes("UNABLE_TO_FIX")) {
             return NextResponse.json({ error: "AI could not generate a confident fix" }, { status: 422 });
