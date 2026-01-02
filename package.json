@@ -1,0 +1,40 @@
+{
+  "name": "shipsafe",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint"
+  },
+  "dependencies": {
+    "@octokit/rest": "^22.0.1",
+    "@prisma/client": "^6.19.1",
+    "@supabase/supabase-js": "^2.89.0",
+    "axios": "^1.13.2",
+    "d3-force": "^3.0.0",
+    "groq-sdk": "^0.37.0",
+    "lodash": "^4.17.21",
+    "lucide-react": "^0.562.0",
+    "next": "16.1.1",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "react-force-graph-2d": "^1.29.0",
+    "recharts": "^3.6.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.18",
+    "@types/lodash": "^4.17.21",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "autoprefixer": "^10.4.23",
+    "eslint": "^9",
+    "eslint-config-next": "16.1.1",
+    "postcss": "^8.5.6",
+    "prisma": "^6.19.1",
+    "tailwindcss": "^4.1.18",
+    "typescript": "^5"
+  }
+}
