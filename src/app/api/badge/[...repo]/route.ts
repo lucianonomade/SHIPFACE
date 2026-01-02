@@ -3,9 +3,10 @@ import { supabaseAdmin } from "@/lib/supabase";
 
 export async function GET(
     req: NextRequest,
-    { params }: { params: { repo: string[] } }
+    context: { params: Promise<{ repo: string[] }> }
 ) {
-    const repoFullName = params.repo.join("/");
+    const { repo } = await context.params;
+    const repoFullName = repo.join("/");
     const [owner, repoName] = repoFullName.split("/");
 
     try {
