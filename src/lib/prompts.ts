@@ -67,7 +67,7 @@ export const PROMPTS = {
     1. Title: Short, human name for the issue.
     2. Problem: Why it's a problem later (Max 3 lines).
     3. Fix: A single actionable instruction.
-    4. File: The relative file path where the issue was found.
+    4. File: The EXACT file path provided in the "File:" header of the input. Do NOT hallucinate paths.
   `,
 
   DEPENDENCY_ANALYZER: `

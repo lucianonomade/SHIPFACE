@@ -91,7 +91,7 @@ export async function runScan(repoFullName: string, token: string, userId: strin
             });
             const scaResult = scaResponse.choices[0].message.content;
             if (scaResult && scaResult.length > 10) {
-                detections.push(scaResult);
+                detections.push(`File: ${depFile}\nAnalysis:\n${scaResult}`);
             }
         } catch (e) {
             console.error(`Failed to scan dependency file ${depFile}`, e);
