@@ -63,7 +63,7 @@ export async function runScan(repoFullName: string, token: string, userId: strin
                     { role: "user", content: `File: ${filePath}\n\nContent:\n${content}` }
                 ],
             });
-            detections.push(detectorResponse.choices[0].message.content);
+            detections.push(`File: ${filePath}\nAnalysis:\n${detectorResponse.choices[0].message.content}`);
         } catch (e) {
             console.error(`Failed to process ${filePath}`, e);
         }

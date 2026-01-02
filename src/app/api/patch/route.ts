@@ -12,10 +12,15 @@ const groq = new Groq({
 export async function POST(req: NextRequest) {
     try {
         const body = await req.json();
-        const { repoFullName, filePath, issueDescription, githubToken, currentCode } = body;
+        let { repoFullName, filePath, issueDescription, githubToken, currentCode } = body;
 
         if (!repoFullName || !filePath || !issueDescription || !githubToken) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+        }
+
+        // Sanitize filePath (GitHub API expects 'path/to/file', not '/path/to/file')
+        if (filePath.startsWith("/")) {
+            filePath = filePath.substring(1);
         }
 
         const [owner, repo] = repoFullName.split("/");
