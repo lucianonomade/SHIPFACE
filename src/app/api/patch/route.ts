@@ -37,10 +37,13 @@ export async function POST(req: NextRequest) {
                     codeToFix = Buffer.from(data.content, "base64").toString("utf-8");
                     fileSha = data.sha;
                 } else {
+                    console.error("Target is not a file or missing content:", data);
                     throw new Error("Target is not a file");
                 }
             } catch (e: any) {
-                return NextResponse.json({ error: "Failed to fetch file content" }, { status: 404 });
+                console.error("Error fetching file content:", e);
+                console.error("Owner:", owner, "Repo:", repo, "Path:", filePath);
+                return NextResponse.json({ error: "Failed to fetch file content", details: e.message }, { status: 404 });
             }
         } else {
             // We still need the SHA for the update
