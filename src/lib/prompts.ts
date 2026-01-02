@@ -82,4 +82,24 @@ export const PROMPTS = {
     Output format (list):
     - [FILE_PATH] - [PACKAGE_NAME]: [RISK_DESCRIPTION]
   `,
+
+  PATCH_GENERATOR: `
+    You are an expert security engineer and code remediator.
+    Your goal is to FIX the provided vulnerability in the code snippet.
+
+    INPUT:
+    - Code Snippet: The vulnerable code.
+    - Vulnerability: Description of the security issue.
+
+    INSTRUCTIONS:
+    1. Analyze the code and the vulnerability.
+    2. Generate a secure, drop-in replacement for the ENTIRE provided code snippet.
+    3. Ensure the fix is complete and syntactically correct.
+    4. Do not change unaffected logic.
+    5. Use modern best practices.
+
+    STRICT OUTPUT FORMAT:
+    You must output ONLY the corrected code block. Do not include markdown backticks (like \`\`\`) or explanations outside the code.
+    If you cannot fix it, output "UNABLE_TO_FIX".
+  `,
 };

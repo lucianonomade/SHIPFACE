@@ -2,7 +2,7 @@
 
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Loader2, AlertCircle, Ship, Share2, Check, Copy, Globe, Link as LinkIcon } from "lucide-react";
+import { Loader2, AlertCircle, Ship, Share2, Check, Copy, Globe, Link as LinkIcon, GitPullRequest } from "lucide-react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { Navbar } from "@/components/Navbar";
@@ -34,6 +34,8 @@ export default function ScanPage() {
     const [copied, setCopied] = useState(false);
     const [view, setView] = useState<'list' | 'map'>('list');
     const [tree, setTree] = useState<any[]>([]);
+    const [patching, setPatching] = useState<Record<number, boolean>>({});
+    const [prLinks, setPrLinks] = useState<Record<number, string>>({});
 
     useEffect(() => {
         const runScan = async () => {
@@ -109,6 +111,37 @@ export default function ScanPage() {
         navigator.clipboard.writeText(url);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
+    };
+
+    const handlePatch = async (issue: Issue, index: number) => {
+        if (!issue.file) return;
+        setPatching(prev => ({ ...prev, [index]: true }));
+        try {
+            const { data: { session } } = await supabase.auth.getSession();
+            const githubToken = session?.provider_token;
+
+            const res = await fetch("/api/patch", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    repoFullName: decodedRepo,
+                    filePath: issue.file,
+                    issueDescription: issue.problem,
+                    githubToken
+                }),
+            });
+
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || "Patch failed");
+
+            setPrLinks(prev => ({ ...prev, [index]: data.prUrl }));
+            alert(`PR Created Successfully! Branch: ${data.branch}`);
+        } catch (err: any) {
+            console.error("Patch error:", err);
+            alert(err.message || "Failed to create patch");
+        } finally {
+            setPatching(prev => ({ ...prev, [index]: false }));
+        }
     };
 
     if (loading) {
@@ -294,10 +327,34 @@ export default function ScanPage() {
                                                     <div className="relative bg-black border border-gray-800 p-4 font-mono text-xs text-gray-300 shadow-inner">
                                                         <div className="flex items-center justify-between mb-3 border-b border-gray-800 pb-2">
                                                             <span className="text-gray-700">patch@ship-safe:~#</span>
+                                                            {issue.file && (
+                                                                <button
+                                                                    onClick={() => handlePatch(issue, i)}
+                                                                    disabled={patching[i] || !!prLinks[i]}
+                                                                    className={`flex items-center gap-2 px-3 py-1 text-[9px] font-bold uppercase tracking-widest border transition-all ${prLinks[i]
+                                                                            ? 'bg-secondary/10 border-secondary text-secondary'
+                                                                            : 'bg-primary/10 border-primary text-primary hover:bg-primary hover:text-black'
+                                                                        }`}
+                                                                >
+                                                                    {patching[i] ? (
+                                                                        <Loader2 size={10} className="animate-spin" />
+                                                                    ) : prLinks[i] ? (
+                                                                        <GitPullRequest size={10} />
+                                                                    ) : (
+                                                                        <span className="material-symbols-outlined text-[10px]">auto_fix</span>
+                                                                    )}
+                                                                    {patching[i] ? "PATCHING..." : prLinks[i] ? "PR OPEN" : "NEURAL PATCH"}
+                                                                </button>
+                                                            )}
                                                         </div>
                                                         <span className="block text-secondary leading-relaxed">
                                                             {issue.fix}
                                                         </span>
+                                                        {prLinks[i] && (
+                                                            <a href={prLinks[i]} target="_blank" className="mt-2 block text-[9px] text-xs underline text-gray-500 hover:text-white">
+                                                                View Pull Request &gt;&gt;
+                                                            </a>
+                                                        )}
                                                     </div>
                                                 </div>
                                             </div>
